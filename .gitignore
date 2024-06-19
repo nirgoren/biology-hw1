@@ -1,0 +1,13 @@
+*.aux
+*.log
+*.pdf
+*.synctex.gz
+*.toc
+*.bbl
+*.blg
+*.out
+*.fdb_latexmk
+*.fls
+*.gz
+*.dvi
+*.ps
