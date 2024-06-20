@@ -11,3 +11,5 @@
 *.gz
 *.dvi
 *.ps
+/.venv/
+.idea/
