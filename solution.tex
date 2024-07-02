@@ -3,8 +3,8 @@
 \usepackage{amssymb}
 \begin{document}
 
-\title{Homework 1 Solution}
-\author{Nir Goren}
+\title{Homework 1: Interpretable Machine Learning Solution}
+\author{Nir Goren 313452781 Nir Endy 205686397}
 \date{\today}
 
 \maketitle
@@ -83,7 +83,5 @@ We see that $\hat{f}_{2,PDP}(x_2)$ is constant, as changing $x_2$ does not affec
     &\hat{f}_{1,ALE}{x_1} = (2 + ar) \cdot (\frac{x_1^2}{2} - \frac{x_1^{0^2}}{2}) \\
 \end{align*}
 Both $\hat{f}_{1,PDP}(x_1)$ and $\hat{f}_{1,ALE}{x_1}$ are quadratic in $x_1$. $\hat{f}_{1,ALE}{x_1}$ depends on $r$ and $a$ while $\hat{f}_{1,PDP}(x_1)$ does not. This is due the expected value of $x_2$ being 0 in the PDP case (indepenent of $x_1$), thus only the fist term is affected, while in the ALE case the conditional distribution of $x_2$ given $x_1$ is taken into account.
-\section{Problem 2}
-% Your solution for problem 2 goes here
 
 \end{document}
