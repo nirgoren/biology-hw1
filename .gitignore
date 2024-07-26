@@ -13,3 +13,5 @@
 *.ps
 /.venv/
 .idea/
+/MLCB_2023_HW2_Data.pkl
+/MLCB_2023_HW2_Data.pkl.zip
