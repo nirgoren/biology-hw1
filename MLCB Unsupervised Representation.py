@@ -109,11 +109,52 @@ import sklearn
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 
+# Calculate the custom distance metric
+from scipy.spatial.distance import pdist, squareform
+
+def custom_distance(X):
+    return 1 - np.abs(np.corrcoef(X, rowvar=False))
+
+distance_matrix = custom_distance(Spikes)
+
+# Perform PCA
+pca = PCA(n_components=2)
+pca_result = pca.fit_transform(Spikes.T)
+
+# Perform t-SNE with different perplexities
+tsne_results = {}
+perplexities = [5, 10, 20, 50, 100]
+for perplexity in perplexities:
+    tsne = TSNE(n_components=2, perplexity=perplexity, metric='precomputed')
+    tsne_results[perplexity] = tsne.fit_transform(distance_matrix)
+
+# Visualization
+fig, axes = plt.subplots(1, len(perplexities) + 1, figsize=(20, 5))
+axes[0].scatter(pca_result[:, 0], pca_result[:, 1], c=Regions, cmap='Pastel1')
+axes[0].set_title('PCA')
+for i, perplexity in enumerate(perplexities):
+    axes[i + 1].scatter(tsne_results[perplexity][:, 0], tsne_results[perplexity][:, 1], c=Regions, cmap='Pastel1')
+    axes[i + 1].set_title(f't-SNE (perplexity={perplexity})')
+plt.show()
 
 #%% md
 # 2. **Preserving global data structure.** For each method, calculate the spearman correlation coefficient between the original dissimilarity matrix $ D_{ij} $ and the Euclidean distance matrix in the embedding: $ D_{ij}^{R} = || R_i - R_j || $. 
 # 
-# Which method best preserves the global structure?
+#%%
+from scipy.stats import spearmanr
+from sklearn.metrics import pairwise_distances
+
+def calculate_spearman(original_dist, embedding):
+    embedding_dist = pairwise_distances(embedding)
+    return spearmanr(squareform(original_dist), squareform(embedding_dist)).correlation
+
+pca_spearman = calculate_spearman(distance_matrix, pca_result)
+tsne_spearmans = {perplexity: calculate_spearman(distance_matrix, tsne_result) for perplexity, tsne_result in tsne_results.items()}
+
+print("Spearman correlation for PCA:", pca_spearman)
+for perplexity, spearman_corr in tsne_spearmans.items():
+    print(f"Spearman correlation for t-SNE (perplexity={perplexity}):", spearman_corr)
+
 #%% md
 # 
 # 3. **Preserving local data structure.** We define the K-nearest neighbors (K-NN) graph $ A_{ij} $ as:
