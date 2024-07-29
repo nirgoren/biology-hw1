@@ -224,7 +224,7 @@ plot_embeddings(pca_embeddings, tsne_embeddings, Regions, Region_names, perplexi
 #%% md
 # #### Which method qualitatively separates the regions in the most convincing way?
 #%% md
-# Answer: t-SNE with perplexity 50 separates the regions in the most convincing way. The regions are more clearly separated compared to PCA and other t-SNE perplexities.
+# Answer: We think that t-SNE with perplexity 50 separates the regions in the most convincing way. The regions are more clearly separated compared to PCA, and slightly better than t-SNE with other perplexities.
 #%% md
 # # 2. **Preserving global data structure.** 
 # For each method, calculate the spearman correlation coefficient between the original dissimilarity matrix $ D_{ij} $ and the Euclidean distance matrix in the embedding: $ D_{ij}^{R} = || R_i - R_j || $. 
@@ -370,14 +370,8 @@ def plot_loadings(coordinates, loadings, title, n_loadings_to_show=2):
         specs=[[{'type': 'scatter3d'} for _ in range(num_cols)] for _ in range(num_rows)]
     )
 
-
-
     # Add a scatter plot for each loading
     for i in range(n_loadings_to_show):
-        loading = loadings[i, :]
-        normalized_loadings = loading + np.abs(np.min(loading))
-        normalized_loadings /= np.max(normalized_loadings)
-
         row = (i // num_cols) + 1
         col = (i % num_cols) + 1
         scatter = go.Scatter3d(
@@ -387,8 +381,8 @@ def plot_loadings(coordinates, loadings, title, n_loadings_to_show=2):
             mode='markers',
             marker=dict(
                 size=5,
-                color=normalized_loadings,
-                opacity=1
+                color=loadings[i, :],
+                opacity=0.6
             ),
         )
         fig.add_trace(scatter, row=row, col=col)
@@ -396,8 +390,7 @@ def plot_loadings(coordinates, loadings, title, n_loadings_to_show=2):
         # Set the layout
         fig.update_layout(
             height=400 * num_rows,  # Adjust height as needed
-            title_text=title,
-            showlegend=False,
+            title_text=title
         )
 
     # Show the plot
@@ -407,14 +400,11 @@ def plot_loadings(coordinates, loadings, title, n_loadings_to_show=2):
 pca_T, pca_embeddings_T = calculate_pca_embeddings(Spikes.T)
 plot_loadings(Coordinates, pca_T.components_, 'PCA Loadings')
 #%%
-pca_T, pca_embeddings_T = calculate_pca_embeddings(Spikes.T)
-plot_loadings(Coordinates, pca_T.components_, 'PCA Loadings')
-#%%
 def plot_NMF_loadings2(n_components, Spikes, ):
     nmf = NMF(n_components=n_components, init='random', random_state=0)
     _ = nmf.fit_transform(Spikes.T)
     title = f'NMF Loadings with {n_components} components'
-    plot_loadings(Coordinates, pca_T.components_, title, n_loadings_to_show=2, )
+    plot_loadings(Coordinates, nmf.components_, title, n_loadings_to_show=2, )
 
 
 #%%
@@ -423,7 +413,7 @@ plot_NMF_loadings2(2, Spikes)
 # Do they localize onto some of the morphological regions?
 #%% md
 # #### Answer:
-# In out eyes, both graphs did not provide clear localization onto the morphological regions
+# There seems to be some spatial localization corresponding to high/low values in the components.
 #%% md
 # # 2. Using the scikit-learn’s implementation, apply Non-Negative Matrix Factorization with n_components=20 and visualize two components in space.
 #%%
@@ -432,7 +422,7 @@ plot_NMF_loadings2(20, Spikes)
 #  ### Do they localize onto some of the morphological regions?
 #%% md
 # #### Answer:
-# 
+# Yes, with NMF there seems to be spatial localization corresponding to high values in the components.
 #%% md
 # # 3. Repeat for n_components = 2, 5 and 50.
 # # 
@@ -442,3 +432,6 @@ plot_NMF_loadings2(50, Spikes)
 # ### How do the components change?
 #%% md
 # #### Answer:
+# As the number of components increases there seems to be less spatial localization in the first two components. This makes sense since having more components allows capturing more nuanced details in each component.
+#%% md
+# 
